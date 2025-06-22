@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  # PostgreSQL - 필수
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-practice
+    environment:
+      POSTGRES_DB: practice_db
+      POSTGRES_USER: daniel
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Redis - 필수  
+  redis:
+    image: redis:7-alpine
+    container_name: redis-practice
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+
+volumes:
+  postgres_data:
+
+# 네트워크나 헬스체크 같은 복잡한 설정 제거
+# Redis Commander 같은 부가 도구 제거
