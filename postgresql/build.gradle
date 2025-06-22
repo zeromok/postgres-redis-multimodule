@@ -1,0 +1,100 @@
+// 서브 모듈은 루트에서 플러그인과 기본 설정을 상속받으므로
+// 별도의 plugins 블록이나 기본 설정 불필요
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    runtimeOnly 'org.postgresql:postgresql'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+// Docker Compose 관리를 위한 태스크들
+tasks.register('startTestDb', Exec) {
+    group = 'docker'
+    description = '테스트용 PostgreSQL 시작'
+    
+    workingDir = project.rootDir
+    commandLine 'docker', 'compose', '-f', 'docker-compose.test.yml', 'up', '-d'
+    
+    doLast {
+        println "⏳ PostgreSQL 헬스체크 대기 중..."
+        // 헬스체크 대기 로직
+        exec {
+            commandLine 'docker', 'exec', 'social-auth-postgres-test', 
+                       'bash', '-c', 'until pg_isready -U test_user -d social_auth_test; do sleep 1; done'
+        }
+        println "✅ 테스트 DB 준비 완료!"
+    }
+}
+
+tasks.register('stopTestDb', Exec) {
+    group = 'docker'
+    description = '테스트용 PostgreSQL 중지'
+    
+    workingDir = project.rootDir
+    commandLine 'docker', 'compose', '-f', 'docker-compose.test.yml', 'down'
+    
+    doLast {
+        println "✅ 테스트 DB 중지 완료!"
+    }
+}
+
+tasks.register('resetTestDb', Exec) {
+    group = 'docker'
+    description = '테스트용 PostgreSQL 재시작 (데이터 초기화)'
+    
+    workingDir = project.rootDir
+    commandLine 'docker', 'compose', '-f', 'docker-compose.test.yml', 'down', '-v'
+    
+    doLast {
+        tasks.startTestDb.get().exec()
+    }
+}
+
+// 테스트만 실행하고 싶을 때 사용 (DB 자동 관리 없음)
+tasks.register('testOnly', Test) {
+    group = 'verification'
+    description = '테스트만 실행 (DB 시작/중지 안함)'
+    
+    systemProperty 'spring.profiles.active', 'test'
+    
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = false
+    }
+    
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+}
+
+// 기본 테스트 태스크는 DB 자동 관리 제거 (너무 번거로우니까)
+tasks.named('test') {
+    systemProperty 'spring.profiles.active', 'test'
+    
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = false
+    }
+    
+    useJUnitPlatform()
+}
+
+// 통합 테스트용 별도 태스크 (필요한 경우에만 사용)
+tasks.register('integrationTest', Test) {
+    group = 'verification'
+    description = 'PostgreSQL JSON 기능 통합 테스트 실행 (DB 자동 시작/중지)'
+    
+    dependsOn tasks.startTestDb
+    finalizedBy tasks.stopTestDb
+    
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+    
+    systemProperty 'spring.profiles.active', 'test'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+}
