@@ -1,5 +1,5 @@
 rootProject.name = 'postgres-redis-practice'
 
-include 'postgres'
+include 'postgresql'
 include 'redis'
 include 'integration'

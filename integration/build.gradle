@@ -2,7 +2,7 @@
 // 루트 build.gradle에서 project(':integration') 블록으로 의존성 관리
 
 dependencies {
-    implementation project(':postgres')
+    implementation project(':postgresql')
     implementation project(':redis')
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
