@@ -26,6 +26,7 @@ public class SessionTestController {
 		return ResponseEntity.ok("세션 저장 완료: " + session.getId());
 	}
 
+	// 세션 조회
 	@GetMapping("/get")
 	public ResponseEntity<Map<String, Object>> getSpringSession(HttpSession session) {
 		Map<String, Object> data = new HashMap<>();
