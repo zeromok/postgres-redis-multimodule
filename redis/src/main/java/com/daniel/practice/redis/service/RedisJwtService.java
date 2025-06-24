@@ -50,6 +50,33 @@ public class RedisJwtService {
 		}
 	}
 
+	// JWT 삭제 메서드 (토큰 기반 삭제)
+	public void removeTokenByToken(String token) {
+		// 1. Redis에서 모든 userId에 대해 토큰을 저장하지 않았다면,
+		//    토큰을 값으로 갖는 모든 키를 찾을 수 없으므로,
+		//    일반적으로는 userId <-> token 매핑이 필요함.
+		// 2. 여기서는 "jwt:{userId}" -> token 구조라고 가정.
+
+		// 모든 userId를 알 수 없으므로, 실무에서는
+		// 1) 토큰에서 userId를 추출하거나,
+		// 2) 별도의 토큰-유저 매핑 테이블을 둡니다.
+
+		// 예시: 토큰에서 userId 추출
+		Optional<String> userIdOpt = jwtService.getUserIdFromToken(token);
+		if (userIdOpt.isPresent()) {
+			String key = "jwt:" + userIdOpt.get();
+			Object value = redisTemplate.opsForValue().get(key);
+			if (value != null && value.toString().equals(token)) {
+				redisTemplate.delete(key);
+				System.out.println("토큰 기반 삭제 완료: " + key);
+			} else {
+				System.out.println("해당 토큰이 Redis에 존재하지 않음");
+			}
+		} else {
+			System.out.println("토큰에서 userId 추출 실패");
+		}
+	}
+
 	// JWT 유효성 검증 메서드 (Redis + JWT 검증)
 	public boolean validateToken(String userId, String token) {
 		System.out.println("=== 토큰 유효성 검증 시작 ===");
