@@ -1,33 +1,3 @@
-# 🚀 PostgreSQL & Redis Practice Project
-
-> **포트폴리오용 통합 로그인 플랫폼 개발을 위한 PostgreSQL과 Redis 학습 및 실습 프로젝트**  
-> 멀티모듈 구조로 각 기술을 단계별로 학습하고, 최종적으로 소셜 로그인 중계 플랫폼에 통합 적용합니다.
-
-## 📋 프로젝트 개요
-
-### 🎯 목적
-- **메인 목표**: 개인 포트폴리오용 통합 로그인 플랫폼 개발 준비
-- **학습 방식**: PostgreSQL → Redis → 통합 단계별 실습
-- **최종 목표**: 다중 OAuth 프로바이더를 지원하는 소셜 로그인 API 서비스
-
-### 📂 프로젝트 구조
-```
-postgres-redis-practice/
-├── postgresql/                    # PostgreSQL + JPA 학습 모듈 ✅ 완료
-│   ├── src/main/java/             # Entity, Repository, Controller
-│   ├── src/test/java/             # JSON 연산자 테스트 (4개 통과)
-│   └── README-TEST.md             # 테스트 가이드
-├── redis/                         # Redis 학습 모듈 🚧 진행중
-├── integration/                   # 통합 모듈 (예정)
-├── scripts/                       # 테스트 환경 스크립트
-│   ├── test-db-start.sh          # 테스트 DB 시작
-│   └── test-db-stop.sh           # 테스트 DB 중지
-├── sql/
-│   └── init-test.sql             # 테스트 DB 초기화
-├── docker-compose.test.yml       # 테스트 환경 (포트 5433)
-└── docker-compose.yml            # 개발 환경 (포트 5432)
-```
-
 ## 🛠️ 기술 스택
 
 | 카테고리 | 기술 | 버전 | 용도 |
@@ -65,7 +35,7 @@ List<Object[]> countUsersByProvider();                          // 집계 쿼리
 - ✅ JSON 키 존재 여부 검색 (`jsonb_exists`)
 - ✅ 복합 JSON 쿼리 (프로바이더 + 이메일 인증)
 
-### 🟡 **Redis 모듈 (Spring Data Redis 연동 완료)**
+### 🟡 **Redis 모듈 (Spring Data Redis 연동 및 보안 실습 완료)**
 
 #### **환경 구성**
 - [x] **Redis Docker Container**: Redis 7-alpine 기반 환경 구성
@@ -88,99 +58,35 @@ public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connec
 - Sorted Set: 예정 (랭킹, 타임라인)
 ```
 
+#### **보안 실습: JWT 블랙리스트(강제 무효화) 기능 추가**
+- [x] **JWT 블랙리스트 구현**:
+   - 로그아웃/강제 만료 시 토큰을 Redis 블랙리스트(`blacklist:{token}`)에 등록
+   - TTL은 토큰의 남은 만료 시간(초 단위)로 설정
+   - 인증 시 블랙리스트에 해당 토큰이 있으면 인증 거부
+   - 만료된 토큰은 자동으로 블랙리스트에서 삭제(메모리 효율)
+- [x] **실습 시나리오**:
+   1. 로그인 → 토큰 발급
+   2. 로그아웃(블랙리스트 등록)
+   3. 같은 토큰으로 인증 시도 → 반드시 거부
+   4. Redis CLI에서 `keys blacklist:*`로 직접 확인
+
 #### **테스트 성과**
 - ✅ **String 타입**: 토큰/세션 ID 저장 및 조회
 - ✅ **Hash 타입**: 사용자 프로필 정보 저장/조회
 - ✅ **List 타입**: LIFO 방식 알림 큐 구현
 - ✅ **Set 타입**: 중복 없는 권한 관리
 - ✅ **JSON 직렬화**: 복합 객체 저장/조회 검증
+- ✅ **JWT 블랙리스트**: 강제 무효화, TTL 기반 자동 만료, 실시간 인증 거부 실습 완료
 
 #### **다음 구현 예정**
-- 🚧 **세션 관리**: Spring Session + Redis 연동
-- 🚧 **JWT 토큰 캐싱**: 토큰 저장 및 TTL 관리
-- 🚧 **자동 만료 처리**: TTL 기반 토큰 만료
-
-### 🟡 **Redis 모듈 (진행중)**
-- [x] **Redis 기본 연결 및 설정** ✅ 완료
-- [x] **5가지 데이터 타입 실습** (String, Hash, List, Set, Sorted Set) ✅ 완료
-- [x] **Spring Data Redis 연동** ✅ 완료
-- [ ] **세션 관리 및 JWT 토큰 캐싱** 🚧 진행 예정
-- [ ] **TTL 기반 토큰 만료 처리** 🚧 진행 예정
+- 🚧 **IP 기반 토큰 제한, 사용 횟수 제한 등 보안 심화 실습**
+- 🚧 **세션 관리 및 JWT 토큰 캐싱**: Spring Session + Redis 연동, 자동 만료 처리
 
 ### 🟡 **Integration 모듈 (예정)**
 - [ ] OAuth 프로바이더 연동 (Google, GitHub, Facebook)
 - [ ] JWT 토큰 발급 및 Redis 캐싱
 - [ ] PostgreSQL JSON 필드에 사용자 정보 저장
 - [ ] 통합 소셜 로그인 API 엔드포인트
-
-## 🚀 시작하기
-
-### 1. 환경 요구사항
-```bash
-# 필수 설치 요소
-- Java 17
-- Docker & Docker Compose
-- Git
-
-# 권장 도구
-- IntelliJ IDEA
-- DBeaver (PostgreSQL GUI)
-- Redis CLI
-```
-
-### 2. 프로젝트 클론 및 실행
-```bash
-# 1. 저장소 클론
-git clone <repository-url>
-cd postgres-redis-practice
-
-# 2. 개발 환경 시작
-docker-compose up -d
-
-# 3. PostgreSQL 모듈 실행
-./gradlew :postgresql:bootRun
-
-# 4. 테스트 실행
-./gradlew :postgresql:test
-```
-
-### 3. 테스트 환경 (분리된 환경)
-```bash
-# 테스트 DB 시작 (포트 5433)
-./scripts/test-db-start.sh
-
-# 테스트 실행
-./gradlew :postgresql:test
-
-# 테스트 DB 정리
-./scripts/test-db-stop.sh
-```
-
-## 🔧 환경 구성
-
-### 포트 매핑
-| 서비스 | 개발환경 | 테스트환경 | 용도 |
-|--------|----------|------------|------|
-| **PostgreSQL** | 5432 | 5433 | 메인 데이터베이스 |
-| **Redis** | 6379 | - | 캐시 서버 |
-| **Spring Boot** | 8080 | - | 애플리케이션 서버 |
-
-### 데이터베이스 접속 정보
-```yaml
-# 개발환경
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/practice_db
-    username: daniel
-    password: password123
-
-# 테스트환경  
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5433/social_auth_test
-    username: test_user
-    password: test_password
-```
 
 ## 📊 핵심 성과 및 학습 포인트
 
@@ -196,6 +102,9 @@ spring:
 3. **JSON 스키마 설계**
    - OAuth 프로바이더별 유연한 JSON 구조 설계
    - 타입 일관성 유지 (Boolean vs String 이슈 해결)
+
+4. **JWT 블랙리스트(강제 무효화) 실습**
+   - Redis TTL, 키 네이밍, 만료 정책, 실시간 인증 흐름 설계 경험
 
 ### 📈 **성능 최적화 경험**
 ```sql
@@ -243,10 +152,9 @@ CREATE INDEX idx_users_provider ON users((provider_info ->> 'provider'));
 1. **✅ Redis 기본 연결 및 설정 완료**
 2. **✅ 데이터 타입별 활용법 실습 완료** (String, Hash, List, Set)
 3. **✅ Spring Data Redis 연동 완료**
-4. **🚧 세션 관리 및 JWT 토큰 캐싱 (다음 작업)**
-   - Spring Session + Redis 연동
-   - JWT 토큰 저장 및 TTL 관리
-   - 자동 만료 처리 구현
+4. **✅ JWT 블랙리스트(강제 무효화) 실습 완료**
+5. **🚧 세션 관리 및 JWT 토큰 캐싱 (다음 작업)**
+6. **🚧 IP 기반 토큰 제한, 사용 횟수 제한 등 보안 심화 실습**
 
 ### **Phase 3: 소셜 로그인 통합 (최종 목표)**
 1. **OAuth 2.0 프로바이더 연동**
@@ -277,5 +185,5 @@ CREATE INDEX idx_users_provider ON users((provider_info ->> 'provider'));
 ---
 
 **마지막 업데이트**: 2025-06-23  
-**현재 상태**: PostgreSQL 모듈 완료, Redis 모듈 Spring Data Redis 연동 완료  
-**프로젝트 완성도**: 50% (PostgreSQL 완료 + Redis 기본 연동 완료)
+**현재 상태**: PostgreSQL 모듈 완료, Redis 모듈 Spring Data Redis 연동 및 JWT 블랙리스트 실습 완료  
+**프로젝트 완성도**: 60% (PostgreSQL 완료 + Redis 기본/보안 실습 완료)
