@@ -1,5 +1,7 @@
 package com.daniel.practice.redis.config;
 
+import static org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair.*;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -31,10 +33,15 @@ public class RedisConfig {
 		return template;
 	}
 
+	// RedisTemplate과 RedisCacheManager는 직렬화 설정이 별개임.
+	// RedisCacheManager 에서 value serializer를 명시적으로 지정하지 않으면,
+	// 기본값(JdkSerializationRedisSerializer) 사용 → 즉, Serializable 필요.
 	@Bean
 	public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
 		RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+			.serializeValuesWith(fromSerializer(new GenericJackson2JsonRedisSerializer())) // Serializable
 			.disableCachingNullValues(); // null 값 캐싱 비활성화
+
 		return RedisCacheManager.builder(connectionFactory)
 			.cacheDefaults(config)
 			.build();

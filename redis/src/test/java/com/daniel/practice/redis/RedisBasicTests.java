@@ -16,7 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 class RedisBasicTests {
 
 	@Autowired
-	private RedisTemplate redisTemplate;
+	private RedisTemplate<String, Object> redisTemplate;
 
 	// @Test
 	// @DisplayName("RedisConfig 설정 전 테스트")
@@ -54,7 +54,7 @@ class RedisBasicTests {
 		redisTemplate.opsForHash().putAll("hash", user);
 
 		// When
-		Map<String, Object> resultMap = redisTemplate.opsForHash().entries("hash");
+		Map<Object, Object> resultMap = redisTemplate.opsForHash().entries("hash");
 
 		// Then
 		System.out.println("저장한 값: " + user);
@@ -73,7 +73,7 @@ class RedisBasicTests {
 
 
 		// When
-		List<String> resultList = redisTemplate.opsForList().range("list", 0, -1);
+		List<Object> resultList = redisTemplate.opsForList().range("list", 0, -1);
 
 		// Then
 		System.out.println("저장한 값: "+ list);
@@ -89,7 +89,7 @@ class RedisBasicTests {
 		Long addResult = redisTemplate.opsForSet().add("set", "admin", "user", "manager");
 
 		// When
-		Set<String> resultSet = redisTemplate.opsForSet().members("set");
+		Set<Object> resultSet = redisTemplate.opsForSet().members("set");
 
 		// Then
 		System.out.println("저장한 데이터 수: " + addResult);
