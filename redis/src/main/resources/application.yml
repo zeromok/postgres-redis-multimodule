@@ -6,3 +6,7 @@ spring:
             host: localhost
             timeout: 2000ms
             port: 6379
+    cache:
+        type: redis
+        redis:
+            time-to-live: 60000 # ms, 60초

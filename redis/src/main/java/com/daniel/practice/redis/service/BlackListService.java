@@ -1,6 +1,5 @@
 package com.daniel.practice.redis.service;
 
-import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.data.redis.core.RedisTemplate;
