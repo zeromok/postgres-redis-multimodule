@@ -25,8 +25,9 @@ public class IntegrationController {
 	// DB 결과를 Redis에 저장(TTL 설정)
 	// 결과 반환
 	@GetMapping("/{id}")
-	public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
-		return null;
+	public ResponseEntity<?> getUser(@PathVariable Long id) {
+		UserDto user = integrationUserService.getUser(id);
+		return user != null ? ResponseEntity.ok(user) : ResponseEntity.ok("사용자가 없습니다.");
 	}
 
 	// 유저 갱신 (캐시 지연/즉시 동기화)

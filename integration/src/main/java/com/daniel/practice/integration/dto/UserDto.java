@@ -1,17 +1,28 @@
 package com.daniel.practice.integration.dto;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+
+import com.daniel.practice.integration.enums.UserStatus;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDto {
 
 	private Long id;
-	private String username;
+	private String name;
 	private String email;
-	private String status;      // 예: ACTIVE, INACTIVE 등
-	private String roles;       // 예: "USER,ADMIN"
-	private String socialType;  // 예: "GOOGLE", "KAKAO" 등 (소셜 로그인 연동 시)
-	private String profileImageUrl;
+	private UserStatus status;
+	private Map<String, Object> providerInfo;
 
-	// 필요시 createdAt, updatedAt 등 추가
+	// BaseTimeEntity에서 상속받는 필드들
+	private LocalDateTime createdAt;
+	private LocalDateTime lastModifiedAt;
 }

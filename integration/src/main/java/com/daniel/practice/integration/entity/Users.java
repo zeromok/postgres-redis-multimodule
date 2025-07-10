@@ -34,40 +34,25 @@ import lombok.Setter;
 public class Users extends BaseTimeEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 증가
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	@Column(unique = true, nullable = false)
-	private String email;
 
 	@Column(nullable = false)
 	private String name;
 
-	/// OAuth 프로바이더별 추가 정보를 JSON 형태로 저장
-	///
-	/// JdbcTypeCode(Types.JSON):  Hibernate 6+ 방식의 JSON 매핑
-	///
-	/// columnDefinition = "jsonb": PostgreSQL의 JSONB 타입 사용 명시
-	///
-	/// JSONB vs JSON:
-	/// - JSONB: 바이너리 형태로 압축 저장, 빠른 검색, 인덱싱 가능
-	/// - JSON: 텍스트 그대로 저장, 입력 순서 유지
-	///
-	/// 저장 예시:
-	///
-	/// Google: {"sub": "123", "picture": "url", "locale": "ko_KR"}
-	///
-	/// GitHub: {"id": 456, "avatar_url": "url", "location": "Seoul"}
-	@Setter
-	@JdbcTypeCode(SqlTypes.JSON)
-	@Column(columnDefinition = "jsonb")
-	private Map<String, Object> providerInfo;
+	@Column(unique = true, nullable = false)
+	private String email;
 
 	@Setter
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	@Builder.Default
 	private UserStatus status = UserStatus.ACTIVE;
+
+	@Setter
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(columnDefinition = "jsonb")
+	private Map<String, Object> providerInfo;
 
 	public boolean isActive() {
 		return status == UserStatus.ACTIVE;

@@ -7,7 +7,7 @@ spring:
     
   # PostgreSQL 설정
   datasource:
-    url: jdbc:postgresql://localhost:5432/practice_db
+    url: jdbc:postgresql://localhost:15432/practice_db
     username: daniel
     password: password123
     driver-class-name: org.postgresql.Driver
