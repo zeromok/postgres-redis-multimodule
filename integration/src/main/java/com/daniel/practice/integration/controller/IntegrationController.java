@@ -32,8 +32,9 @@ public class IntegrationController {
 
 	// 유저 갱신 (캐시 지연/즉시 동기화)
 	@PutMapping("/{id}")
-	public ResponseEntity<Void> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
-		return null;
+	public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+		integrationUserService.updateUserImmediateSync(id, userDto);
+		return ResponseEntity.ok("유저 갱신 완료");
 	}
 
 	// 유저 삭제 (캐시 삭제)

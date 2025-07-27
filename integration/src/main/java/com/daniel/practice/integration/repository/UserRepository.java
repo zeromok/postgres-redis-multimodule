@@ -7,6 +7,4 @@ import com.daniel.practice.integration.entity.Users;
 
 @Repository
 public interface UserRepository extends JpaRepository<Users, Long> {
-
-	Users findUsersById(Long id);
 }
